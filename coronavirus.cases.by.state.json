@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
-  "title":"NYTIMES COVID-19 CASES",
+  "title":"NYTIMES COVID-19 CASES BY STATE",
   "config": {"background":"#A67D3D"},
   "width": "container",
   "height": 600,
