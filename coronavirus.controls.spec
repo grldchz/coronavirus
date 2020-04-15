@@ -7,7 +7,6 @@
   "title": {"text": "NYTIMES COVID-19 DATA", "frame": "group"},
 
   "data": [
-    {"name": "highlight_store"},
     {"name": "state_store"},
     {
       "name": "source_1",
@@ -23,7 +22,7 @@
       "name": "source_0",
       "async":false,
       "url": "https://vega.github.io/editor/data/us-10m.json",
-      "format": {"type": "topojson", "feature": {"signal": "data_type"}},
+      "format": {"type": "topojson", "feature": {"signal": "boundary"}},
       "transform": [
         {"type": "identifier", "as": "_vgsid_"},
         {
@@ -52,7 +51,7 @@
   ],
 
   "signals": [
-    { "name": "data_type", "value": "states",
+    { "name": "boundary", "value": "states",
       "bind": {"input": "radio", "options": ["states", "counties"]} 
     },
     {
@@ -64,14 +63,14 @@
       "update": "datetime(day)"
     },
     { "name": "data_url", 
-      "update": "'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-'+data_type+'.csv'" 
+      "update": "'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-'+boundary+'.csv'" 
     },
-    { "name": "metric_type", "value": "cases",
+    { "name": "metric", "value": "cases",
       "bind": {"input": "radio", "options": ["cases", "deaths"]} 
     },
-    { "name": "digit_format", "update": "data_type=='states'?10:10000"},
-    { "name": "metric_range", "value": 100000,
-      "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 100000]} },
+    { "name": "digit_format", "update": "boundary=='states'?10:10000"},
+    { "name": "metric_range", "value": 50000,
+      "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000]} },
     { "name": "day", "value": 1586899300000,
       "bind": {"input": "range", "min": 1580533200000, "max": 1596240000000, "step": 8.64e+7} },
     {
@@ -92,39 +91,11 @@
       ]
     },
     {
-      "name": "highlight",
-      "update": "vlSelectionResolve(\"highlight_store\", \"union\")"
-    },
-    {
-      "name": "highlight_tuple",
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "mouseover"}],
-          "update": "datum && item().mark.marktype !== 'group' ? {unit: \"\", fields: highlight_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"_vgsid_\"]]} : null",
-          "force": true
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ]
-    },
-    {
-      "name": "highlight_tuple_fields",
-      "value": [{"type": "E", "field": "_vgsid_"}]
-    },
-    {
-      "name": "highlight_modify",
-      "on": [
-        {
-          "events": {"signal": "highlight_tuple"},
-          "update": "modify(\"highlight_store\", highlight_tuple, true)"
-        }
-      ]
-    },
-    {
       "name": "state_state",
       "value": null,
       "bind": {
         "input": "select",
-        "name": "Pick a State",
+        "name": "state",
         "options": [
           null,
           "Alabama",
@@ -216,13 +187,13 @@
         "update": {
           "fill": [
             {
-              "test": "(vlSelectionTest(\"highlight_store\", datum))",
-              "value": "darkred"
+              "test": "datum.cases > 100000 || datum.deaths > 5000",
+              "value": "black"
             },
-            {"scale": "color", "field": {"signal": "metric_type"}}
+            {"scale": "color", "field": {"signal": "metric"}}
           ],
           "tooltip": {
-            "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\"+datum[\"county\"],\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
+            "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
           }
         }
       },
@@ -244,7 +215,8 @@
           "y": {"signal":"height"}
         }
       }
-    }  ],
+    }  
+  ],
   "scales": [
     {
       "name": "color",
@@ -255,5 +227,5 @@
       "zero": true
     }
   ],
-  "legends": [{"fill": "color", "symbolType": "circle", "title": {"signal":"metric_type"}, "padding":10}]
+  "legends": [{"fill": "color", "symbolType": "circle", "title": {"signal":"metric"}, "padding":10}]
 }
