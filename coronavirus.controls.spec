@@ -3,6 +3,7 @@
   "autosize": {"type": "fit-x", "contains": "padding"},
   "background": "#A67D3D",
   "padding": 5,
+  "width": "container",
   "height": 400,
   "title": {"text": "NYTIMES COVID-19 DATA", "frame": "group"},
 
@@ -52,7 +53,8 @@
 
   "signals": [
     { "name": "boundary", "value": "states",
-      "bind": {"input": "radio", "options": ["states", "counties"]} 
+      "bind": {"input": "radio", "options": ["states", "counties"], 
+      "element": "#controls", "name": "BOUNDARY"} 
     },
     {
       "name": "feb1",
@@ -66,13 +68,17 @@
       "update": "'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-'+boundary+'.csv'" 
     },
     { "name": "metric", "value": "cases",
-      "bind": {"input": "radio", "options": ["cases", "deaths"]} 
+      "bind": {"input": "radio", "options": ["cases", "deaths"], 
+      "element": "#controls", "name": "METRIC"} 
     },
     { "name": "digit_format", "update": "boundary=='states'?10:10000"},
     { "name": "metric_range", "value": 50000,
-      "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000]} },
+      "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000], 
+      "element": "#controls", "name": "METRIC RANGE", 
+	  "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
     { "name": "day", "value": 1586899300000,
-      "bind": {"input": "range", "min": 1580533200000, "max": 1596240000000, "step": 8.64e+7} },
+      "bind": {"input": "range", "min": 1580533200000, "max": 1596240000000, "step": 8.64e+7, 
+      "element": "#controls", "name": "DAY"} },
     {
       "name": "width",
       "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
@@ -95,7 +101,8 @@
       "value": null,
       "bind": {
         "input": "select",
-        "name": "state",
+        "name": "STATE", 
+      "element": "#controls",
         "options": [
           null,
           "Alabama",
