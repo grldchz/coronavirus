@@ -1,7 +1,7 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "autosize": {"type": "fit-x", "contains": "padding"},
-  "background": "#A67D3D",
+ "background": "#A67D3D",
   "padding": 5,
   "width": "container",
   "height": 400,
@@ -75,10 +75,10 @@
     { "name": "metric_range", "value": 50000,
       "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000], 
       "element": "#controls", "name": "METRIC RANGE", 
-	  "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
-    { "name": "day", "value": 1586899300000,
+	    "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
+    { "name": "day", "init": "now()",
       "bind": {"input": "range", "min": 1580533200000, "max": 1596240000000, "step": 8.64e+7, 
-      "element": "#controls", "name": "DAY"} },
+      "element": "#controls", "name": "DAY"}, "on": [] },
     {
       "name": "width",
       "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
@@ -102,7 +102,7 @@
       "bind": {
         "input": "select",
         "name": "STATE", 
-      "element": "#controls",
+        "element": "#controls",
         "options": [
           null,
           "Alabama",
@@ -192,6 +192,7 @@
       "from": {"data": "source_0"},
       "encode": {
         "update": {
+          "strokeWidth": {"value": 0},
           "fill": [
             {
               "test": "datum.cases > 100000 || datum.deaths > 5000",
@@ -202,6 +203,14 @@
           "tooltip": {
             "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
           }
+        },
+        "hover": {
+          "strokeWidth": [{ 
+            "test": "boundary == 'states' || state_state != null",
+            "value": 1}],
+          "stroke": [{ 
+            "test": "boundary == 'states' || state_state",
+            "value": "black"}]
         }
       },
       "transform": [{"type": "geoshape", "projection": "projection"}]
@@ -234,5 +243,6 @@
       "zero": true
     }
   ],
-  "legends": [{"fill": "color", "symbolType": "circle", "title": {"signal":"metric"}, "padding":10}]
+  "legends": [{"fill": "color", "symbolType": "circle", 
+    "title": {"signal":"metric"}, "padding":10}]
 }
