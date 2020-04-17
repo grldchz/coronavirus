@@ -195,7 +195,7 @@
           "strokeWidth": {"value": 0},
           "fill": [
             {
-              "test": "datum.cases > 100000 || datum.deaths > 5000",
+              "test": "(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
               "value": "black"
             },
             {"scale": "color", "field": {"signal": "metric"}}
@@ -238,7 +238,8 @@
       "name": "color",
       "type": "quantize",
       "domain": [0, {"signal":"metric_range"}],
-      "range": {"scheme": "greens", "count": 10},
+      "range": {"scheme": ["#cccd9d", "#b1b187", "#9f9f79", "#848558", "#6c8e60", "#526b49", "#3c4e35", 
+		"#705b47", "#504132", "#31271e"], "count": 10},
       "interpolate": "hcl",
       "zero": true
     }
