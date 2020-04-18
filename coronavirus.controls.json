@@ -212,7 +212,7 @@
         },
         {
             "name":"display_date",
-            "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+((date(day)+1)<10?0+''+(date(day)+1):(date(day)+1))",
+            "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+(date(day)<10?0+''+date(day):date(day))",
             "bind":{
                 "input":"text",
                 "name":"DATE",
