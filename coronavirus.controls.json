@@ -114,11 +114,15 @@
       "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000], 
       "element": "#controls", "name": "METRIC RANGE", 
 	    "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
+    { "name": "display_date", "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+date(day)", 
+      "bind":{ "input": "text", "name": "DATE", 
+      "element": "#controls", 
+        "readonly": true, "size": 30}},
     { "name": "day", "init": "now()",
       "bind": {"input": "range", 
         "min": 1580533200000, "max": 1596240000000, 
-       "step": 86400000, 
-      "element": "#controls", "name": "DAY", "debounce": 100} },
+        "step": 86400000, 
+        "element": "#controls", "name": "SLIDER", "debounce": 100} },
     {
       "name": "width",
       "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
@@ -284,24 +288,7 @@
         }
       },
       "transform": [{"type": "geoshape", "projection": "projection"}]
-    },
-    {
-      "type": "text",
-      "encode": {
-        "update": {
-          "fill": {
-            "value": "#000"
-          },
-          "text": {
-            "signal": "''+datetime"
-          },
-          "fontSize": {
-            "value": 20
-          }, 
-          "y": {"signal":"height+40"}
-        }
-      }
-    }  
+    } 
   ],
   "scales": [
     {
