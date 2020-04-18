@@ -4,36 +4,35 @@
  "background": "#A67D3D",
   "padding": 5,
   "width": "container",
-  "height": 400,
+  "height": 300,
   "title": {"text": "NYTIMES COVID-19 DATA", "frame": "group"},
 
   "data": [
     {"name": "state_store"},
     {
-      "name": "source_1",
-      "async": false,
+      "name": "nytimes_data",
       "url": {"signal": "data_url"},
       "format": {"type": "csv", "delimiter": ",","parse": {"date": "utc:'%Y-%m-%d'"}},
-    "transform": [{
+      "transform": [
+        {
           "type": "filter",
           "expr": "inrange(datum[\"date\"], [feb1, day])"
-      }]
+        } 
+      ]
     },
     {
-      "name": "source_0",
-      "async":false,
+      "name": "topojson_data",
       "url": "https://vega.github.io/editor/data/us-10m.json",
       "format": {"type": "topojson", "feature": {"signal": "boundary"}},
       "transform": [
-        {"type": "identifier", "as": "_vgsid_"},
         {
           "type": "formula",
           "expr": "datum.id<digit_format?0+''+datum.id:datum.id",
           "as": "digit"
-        },
+        },        
         {
           "type": "lookup",
-          "from": "source_1",
+          "from": "nytimes_data",
           "key": "fips",
           "fields": ["digit"],
           "values": ["date", "county", "state", "fips", "cases", "deaths"],
@@ -48,6 +47,44 @@
           "expr": "!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
         }
       ]
+    },
+    {
+      "name": "nyc_data",
+      "url": {"signal": "data_url"},
+      "format": {"type": "csv", "delimiter": ",","parse": {"date": "utc:'%Y-%m-%d'"}},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "inrange(datum[\"date\"], [feb1, day]) && datum[\"county\"] == 'New York City'"
+        } 
+      ]
+    },
+    {
+      "name": "nyc_topojson_data",
+      "url": "https://vega.github.io/editor/data/us-10m.json",
+      "format": {"type": "topojson", "feature": {"signal": "boundary"}},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum[\"id\"] == 36081||datum[\"id\"] == 36005||datum[\"id\"] == 36061||datum[\"id\"] == 36047||datum[\"id\"] == 36085"
+        },
+        {
+          "type": "formula",
+          "expr": "''",
+          "as": "digit"
+        },        
+        {
+          "type": "lookup",
+          "from": "nyc_data",
+          "key": "fips",
+          "fields": ["digit"],
+          "values": ["date", "county", "state", "fips", "cases", "deaths"]
+        },
+        {
+          "type": "filter",
+          "expr": "!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+        }
+      ]
     }
   ],
 
@@ -56,6 +93,7 @@
       "bind": {"input": "radio", "options": ["states", "counties"], 
       "element": "#controls", "name": "BOUNDARY"} 
     },
+    {"name":"nyc","value":"New York City"},
     {
       "name": "feb1",
       "value": "1580533200000"
@@ -77,8 +115,10 @@
       "element": "#controls", "name": "METRIC RANGE", 
 	    "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
     { "name": "day", "init": "now()",
-      "bind": {"input": "range", "min": 1580533200000, "max": 1596240000000, "step": 8.64e+7, 
-      "element": "#controls", "name": "DAY"}, "on": [] },
+      "bind": {"input": "range", 
+        "min": 1580533200000, "max": 1596240000000, 
+       "step": 86400000, 
+      "element": "#controls", "name": "DAY", "debounce": 100} },
     {
       "name": "width",
       "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
@@ -178,7 +218,7 @@
     {
       "name": "projection",
       "size": {"signal": "[width, height]"},
-      "fit": {"signal": "data('source_0')"},
+      "fit": {"signal": "data('topojson_data')"},
       "type": "albersUsa"
     }
   ],
@@ -189,7 +229,37 @@
       "type": "shape",
       "style": ["geoshape"],
       "interactive": true,
-      "from": {"data": "source_0"},
+      "from": {"data": "topojson_data"},
+      "encode": {
+        "update": {
+          "strokeWidth": {"value": 0},
+          "fill": [
+            {
+              "test": "(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
+              "value": "black"
+            },
+            {"scale": "color", "field": {"signal": "metric"}}
+          ],
+          "tooltip": {
+            "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
+          }
+        },
+        "hover": {
+          "strokeWidth": [{ 
+            "test": "boundary == 'states' || state_state != null",
+            "value": 1}],
+          "stroke": [{ 
+            "test": "boundary == 'states' || state_state",
+            "value": "black"}]
+        }
+      },
+      "transform": [{"type": "geoshape", "projection": "projection"}]
+    },    {
+      "name": "nyc_marks",
+      "type": "shape",
+      "style": ["geoshape"],
+      "interactive": true,
+      "from": {"data": "nyc_topojson_data"},
       "encode": {
         "update": {
           "strokeWidth": {"value": 0},
@@ -228,7 +298,7 @@
           "fontSize": {
             "value": 20
           }, 
-          "y": {"signal":"height"}
+          "y": {"signal":"height+40"}
         }
       }
     }  
