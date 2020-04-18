@@ -384,7 +384,7 @@
                         }
                     ],
                     "tooltip":{
-                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \",.2r\"), \"deaths\": format(datum[\"deaths\"], \",.2r\")}"
+                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \",\"), \"deaths\": format(datum[\"deaths\"], \",\")}"
                     }
                 },
                 "hover":{
@@ -437,7 +437,7 @@
                         }
                     ],
                     "tooltip":{
-                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \",.2r\"), \"deaths\": format(datum[\"deaths\"], \",.2r\")}"
+                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \",\"), \"deaths\": format(datum[\"deaths\"], \",\")}"
                     }
                 },
                 "hover":{
