@@ -1,306 +1,505 @@
 {
-  "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "autosize": {"type": "fit-x", "contains": "padding"},
- "background": "#A67D3D",
-  "padding": 5,
-  "width": "container",
-  "height": 300,
-  "title": {"text": "NYTIMES COVID-19 DATA", "frame": "group"},
-
-  "data": [
-    {"name": "state_store"},
-    {
-      "name": "nytimes_data",
-      "url": {"signal": "data_url"},
-      "format": {"type": "csv", "delimiter": ",","parse": {"date": "utc:'%Y-%m-%d'"}},
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "inrange(datum[\"date\"], [feb1, day])"
-        } 
-      ]
+    "$schema":"https://vega.github.io/schema/vega/v5.json",
+    "autosize":{
+        "type":"fit-x",
+        "contains":"padding"
     },
-    {
-      "name": "topojson_data",
-      "url": "https://vega.github.io/editor/data/us-10m.json",
-      "format": {"type": "topojson", "feature": {"signal": "boundary"}},
-      "transform": [
+    "background":"#A67D3D",
+    "padding":5,
+    "width":"container",
+    "height":300,
+    "title":{
+        "text":"NYTIMES COVID-19 DATA",
+        "frame":"group"
+    },
+    "data":[
         {
-          "type": "formula",
-          "expr": "datum.id<digit_format?0+''+datum.id:datum.id",
-          "as": "digit"
-        },        
-        {
-          "type": "lookup",
-          "from": "nytimes_data",
-          "key": "fips",
-          "fields": ["digit"],
-          "values": ["date", "county", "state", "fips", "cases", "deaths"],
-          "default": "0"
+            "name":"state_store"
         },
         {
-          "type": "filter",
-          "expr": "isValid(datum[\"cases\"]) && isFinite(+datum[\"cases\"])"
-        },
-        {
-          "type": "filter",
-          "expr": "!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
-        }
-      ]
-    },
-    {
-      "name": "nyc_data",
-      "url": {"signal": "data_url"},
-      "format": {"type": "csv", "delimiter": ",","parse": {"date": "utc:'%Y-%m-%d'"}},
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "inrange(datum[\"date\"], [feb1, day]) && datum[\"county\"] == 'New York City'"
-        } 
-      ]
-    },
-    {
-      "name": "nyc_topojson_data",
-      "url": "https://vega.github.io/editor/data/us-10m.json",
-      "format": {"type": "topojson", "feature": {"signal": "boundary"}},
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum[\"id\"] == 36081||datum[\"id\"] == 36005||datum[\"id\"] == 36061||datum[\"id\"] == 36047||datum[\"id\"] == 36085"
-        },
-        {
-          "type": "formula",
-          "expr": "''",
-          "as": "digit"
-        },        
-        {
-          "type": "lookup",
-          "from": "nyc_data",
-          "key": "fips",
-          "fields": ["digit"],
-          "values": ["date", "county", "state", "fips", "cases", "deaths"]
-        },
-        {
-          "type": "filter",
-          "expr": "!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
-        }
-      ]
-    }
-  ],
-
-  "signals": [
-    { "name": "boundary", "value": "states",
-      "bind": {"input": "radio", "options": ["states", "counties"], 
-      "element": "#controls", "name": "BOUNDARY"} 
-    },
-    {"name":"nyc","value":"New York City"},
-    {
-      "name": "feb1",
-      "value": "1580533200000"
-    },
-    {
-      "name": "datetime",
-      "update": "datetime(day)"
-    },
-    { "name": "data_url", 
-      "update": "'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-'+boundary+'.csv'" 
-    },
-    { "name": "metric", "value": "cases",
-      "bind": {"input": "radio", "options": ["cases", "deaths"], 
-      "element": "#controls", "name": "METRIC"} 
-    },
-    { "name": "digit_format", "update": "boundary=='states'?10:10000"},
-    { "name": "metric_range", "value": 50000,
-      "bind": {"input": "radio", "options": [100, 500, 1000, 5000, 10000, 50000], 
-      "element": "#controls", "name": "METRIC RANGE", 
-	    "labels": ["100", "500", "1,000", "5,000", "10,000", "50,000" ]} },
-    { "name": "display_date", "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+date(day)", 
-      "bind":{ "input": "text", "name": "DATE", 
-      "element": "#controls", 
-        "readonly": true, "size": 30}},
-    { "name": "day", "init": "now()",
-      "bind": {"input": "range", 
-        "min": 1580533200000, "max": 1596240000000, 
-        "step": 86400000, 
-        "element": "#controls", "name": "SLIDER", "debounce": 100} },
-    {
-      "name": "width",
-      "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
-      "on": [
-        {
-          "update": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
-          "events": "window:resize"
-        }
-      ]
-    },
-    {
-      "name": "unit",
-      "value": {},
-      "on": [
-        {"events": "mousemove", "update": "isTuple(group()) ? group() : unit"}
-      ]
-    },
-    {
-      "name": "state_state",
-      "value": null,
-      "bind": {
-        "input": "select",
-        "name": "STATE", 
-        "element": "#controls",
-        "options": [
-          null,
-          "Alabama",
-          "Alaska",
-          "Arizona",
-          "Arkansas",
-          "California",
-          "Colorado",
-          "Connecticut",
-          "Delaware",
-          "Florida",
-          "Georgia",
-          "Hawaii",
-          "Idaho",
-          "Illinois",
-          "Indiana",
-          "Iowa",
-          "Kansas",
-          "Kentucky",
-          "Louisiana",
-          "Maine",
-          "Maryland",
-          "Massachusetts",
-          "Michigan",
-          "Minnesota",
-          "Mississippi",
-          "Missouri",
-          "Montana",
-          "Nebraska",
-          "Nevada",
-          "New Hampshire",
-          "New Jersey",
-          "New Mexico",
-          "New York",
-          "North Carolina",
-          "North Dakota",
-          "Ohio",
-          "Oklahoma",
-          "Oregon",
-          "Pennsylvania",
-          "Rhode Island",
-          "South Carolina",
-          "South Dakota",
-          "Tennessee",
-          "Texas",
-          "Utah",
-          "Vermont",
-          "Virginia",
-          "Washington",
-          "West Virginia",
-          "Wisconsin",
-          "Wyoming"
-        ]
-      }
-    },
-    {
-      "name": "state_tuple",
-      "update": "state_state !== null ? {fields: state_tuple_fields, values: [state_state]} : null"
-    },
-    {"name": "state_tuple_fields", "value": [{"type": "E", "field": "state"}]},
-    {
-      "name": "state_modify",
-      "on": [
-        {
-          "events": {"signal": "state_tuple"},
-          "update": "modify(\"state_store\", state_tuple, true)"
-        }
-      ]
-    }
-  ],
-
-  "projections": [
-    {
-      "name": "projection",
-      "size": {"signal": "[width, height]"},
-      "fit": {"signal": "data('topojson_data')"},
-      "type": "albersUsa"
-    }
-  ],
-
-  "marks": [
-    {
-      "name": "marks",
-      "type": "shape",
-      "style": ["geoshape"],
-      "interactive": true,
-      "from": {"data": "topojson_data"},
-      "encode": {
-        "update": {
-          "strokeWidth": {"value": 0},
-          "fill": [
-            {
-              "test": "(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
-              "value": "black"
+            "name":"nytimes_data",
+            "url":{
+                "signal":"data_url"
             },
-            {"scale": "color", "field": {"signal": "metric"}}
-          ],
-          "tooltip": {
-            "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
-          }
-        },
-        "hover": {
-          "strokeWidth": [{ 
-            "test": "boundary == 'states' || state_state != null",
-            "value": 1}],
-          "stroke": [{ 
-            "test": "boundary == 'states' || state_state",
-            "value": "black"}]
-        }
-      },
-      "transform": [{"type": "geoshape", "projection": "projection"}]
-    },    {
-      "name": "nyc_marks",
-      "type": "shape",
-      "style": ["geoshape"],
-      "interactive": true,
-      "from": {"data": "nyc_topojson_data"},
-      "encode": {
-        "update": {
-          "strokeWidth": {"value": 0},
-          "fill": [
-            {
-              "test": "(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
-              "value": "black"
+            "format":{
+                "type":"csv",
+                "delimiter":",",
+                "parse":{
+                    "date":"utc:'%Y-%m-%d'"
+                }
             },
-            {"scale": "color", "field": {"signal": "metric"}}
-          ],
-          "tooltip": {
-            "signal": "{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
-          }
+            "transform":[
+                {
+                    "type":"filter",
+                    "expr":"inrange(datum[\"date\"], [feb1, day])"
+                }
+            ]
         },
-        "hover": {
-          "strokeWidth": [{ 
-            "test": "boundary == 'states' || state_state != null",
-            "value": 1}],
-          "stroke": [{ 
-            "test": "boundary == 'states' || state_state",
-            "value": "black"}]
+        {
+            "name":"topojson_data",
+            "url":"https://vega.github.io/editor/data/us-10m.json",
+            "format":{
+                "type":"topojson",
+                "feature":{
+                    "signal":"boundary"
+                }
+            },
+            "transform":[
+                {
+                    "type":"formula",
+                    "expr":"datum.id<digit_format?0+''+datum.id:datum.id",
+                    "as":"digit"
+                },
+                {
+                    "type":"lookup",
+                    "from":"nytimes_data",
+                    "key":"fips",
+                    "fields":[
+                        "digit"
+                    ],
+                    "values":[
+                        "date",
+                        "county",
+                        "state",
+                        "fips",
+                        "cases",
+                        "deaths"
+                    ],
+                    "default":"0"
+                },
+                {
+                    "type":"filter",
+                    "expr":"isValid(datum[\"cases\"]) && isFinite(+datum[\"cases\"])"
+                },
+                {
+                    "type":"filter",
+                    "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+                }
+            ]
+        },
+        {
+            "name":"nyc_data",
+            "url":{
+                "signal":"data_url"
+            },
+            "format":{
+                "type":"csv",
+                "delimiter":",",
+                "parse":{
+                    "date":"utc:'%Y-%m-%d'"
+                }
+            },
+            "transform":[
+                {
+                    "type":"filter",
+                    "expr":"inrange(datum[\"date\"], [feb1, day]) && datum[\"county\"] == 'New York City'"
+                }
+            ]
+        },
+        {
+            "name":"nyc_topojson_data",
+            "url":"https://vega.github.io/editor/data/us-10m.json",
+            "format":{
+                "type":"topojson",
+                "feature":{
+                    "signal":"boundary"
+                }
+            },
+            "transform":[
+                {
+                    "type":"filter",
+                    "expr":"datum[\"id\"] == 36081||datum[\"id\"] == 36005||datum[\"id\"] == 36061||datum[\"id\"] == 36047||datum[\"id\"] == 36085"
+                },
+                {
+                    "type":"formula",
+                    "expr":"''",
+                    "as":"digit"
+                },
+                {
+                    "type":"lookup",
+                    "from":"nyc_data",
+                    "key":"fips",
+                    "fields":[
+                        "digit"
+                    ],
+                    "values":[
+                        "date",
+                        "county",
+                        "state",
+                        "fips",
+                        "cases",
+                        "deaths"
+                    ]
+                },
+                {
+                    "type":"filter",
+                    "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+                }
+            ]
         }
-      },
-      "transform": [{"type": "geoshape", "projection": "projection"}]
-    } 
-  ],
-  "scales": [
-    {
-      "name": "color",
-      "type": "quantize",
-      "domain": [0, {"signal":"metric_range"}],
-      "range": {"scheme": ["#cccd9d", "#b1b187", "#9f9f79", "#848558", "#6c8e60", "#526b49", "#3c4e35", 
-		"#705b47", "#504132", "#31271e"], "count": 10},
-      "interpolate": "hcl",
-      "zero": true
-    }
-  ],
-  "legends": [{"fill": "color", "symbolType": "circle", 
-    "title": {"signal":"metric"}, "padding":10}]
+    ],
+    "signals":[
+        {
+            "name":"boundary",
+            "value":"states",
+            "bind":{
+                "input":"radio",
+                "options":[
+                    "states",
+                    "counties"
+                ],
+                "element":"#controls",
+                "name":"BOUNDARY"
+            }
+        },
+        {
+            "name":"nyc",
+            "value":"New York City"
+        },
+        {
+            "name":"feb1",
+            "value":"1580533200000"
+        },
+        {
+            "name":"datetime",
+            "update":"datetime(day)"
+        },
+        {
+            "name":"data_url",
+            "update":"'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-'+boundary+'.csv'"
+        },
+        {
+            "name":"metric",
+            "value":"cases",
+            "bind":{
+                "input":"radio",
+                "options":[
+                    "cases",
+                    "deaths"
+                ],
+                "element":"#controls",
+                "name":"METRIC"
+            }
+        },
+        {
+            "name":"digit_format",
+            "update":"boundary=='states'?10:10000"
+        },
+        {
+            "name":"metric_range",
+            "value":10000,
+            "bind":{
+                "input":"radio",
+                "options":[
+                    100,
+                    500,
+                    1000,
+                    5000,
+                    10000,
+                    50000
+                ],
+                "element":"#controls",
+                "name":"METRIC RANGE",
+                "labels":[
+                    "100",
+                    "500",
+                    "1,000",
+                    "5,000",
+                    "10,000",
+                    "50,000"
+                ]
+            }
+        },
+        {
+            "name":"display_date",
+            "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+((date(day)+1)<10?0+''+(date(day)+1):(date(day)+1))",
+            "bind":{
+                "input":"text",
+                "name":"DATE",
+                "element":"#controls",
+                "readonly":true,
+                "size":30
+            }
+        },
+        {
+            "name":"day",
+            "init":"now()",
+            "bind":{
+                "input":"range",
+                "min":1580533200000,
+                "max":1596240000000,
+                "step":86400000,
+                "element":"#controls",
+                "name":"SLIDER",
+                "debounce":100
+            }
+        },
+        {
+            "name":"width",
+            "init":"isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+            "on":[
+                {
+                    "update":"isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+                    "events":"window:resize"
+                }
+            ]
+        },
+        {
+            "name":"unit",
+            "value":{
+
+            },
+            "on":[
+                {
+                    "events":"mousemove",
+                    "update":"isTuple(group()) ? group() : unit"
+                }
+            ]
+        },
+        {
+            "name":"state_state",
+            "value":null,
+            "bind":{
+                "input":"select",
+                "name":"STATE",
+                "element":"#controls",
+                "options":[
+                    null,
+                    "Alabama",
+                    "Alaska",
+                    "Arizona",
+                    "Arkansas",
+                    "California",
+                    "Colorado",
+                    "Connecticut",
+                    "Delaware",
+                    "Florida",
+                    "Georgia",
+                    "Hawaii",
+                    "Idaho",
+                    "Illinois",
+                    "Indiana",
+                    "Iowa",
+                    "Kansas",
+                    "Kentucky",
+                    "Louisiana",
+                    "Maine",
+                    "Maryland",
+                    "Massachusetts",
+                    "Michigan",
+                    "Minnesota",
+                    "Mississippi",
+                    "Missouri",
+                    "Montana",
+                    "Nebraska",
+                    "Nevada",
+                    "New Hampshire",
+                    "New Jersey",
+                    "New Mexico",
+                    "New York",
+                    "North Carolina",
+                    "North Dakota",
+                    "Ohio",
+                    "Oklahoma",
+                    "Oregon",
+                    "Pennsylvania",
+                    "Rhode Island",
+                    "South Carolina",
+                    "South Dakota",
+                    "Tennessee",
+                    "Texas",
+                    "Utah",
+                    "Vermont",
+                    "Virginia",
+                    "Washington",
+                    "West Virginia",
+                    "Wisconsin",
+                    "Wyoming"
+                ]
+            }
+        },
+        {
+            "name":"state_tuple",
+            "update":"state_state !== null ? {fields: state_tuple_fields, values: [state_state]} : null"
+        },
+        {
+            "name":"state_tuple_fields",
+            "value":[
+                {
+                    "type":"E",
+                    "field":"state"
+                }
+            ]
+        },
+        {
+            "name":"state_modify",
+            "on":[
+                {
+                    "events":{
+                        "signal":"state_tuple"
+                    },
+                    "update":"modify(\"state_store\", state_tuple, true)"
+                }
+            ]
+        }
+    ],
+    "projections":[
+        {
+            "name":"projection",
+            "size":{
+                "signal":"[width, height]"
+            },
+            "fit":{
+                "signal":"data('topojson_data')"
+            },
+            "type":"albersUsa"
+        }
+    ],
+    "marks":[
+        {
+            "name":"marks",
+            "type":"shape",
+            "style":[
+                "geoshape"
+            ],
+            "interactive":true,
+            "from":{
+                "data":"topojson_data"
+            },
+            "encode":{
+                "update":{
+                    "strokeWidth":{
+                        "value":0
+                    },
+                    "fill":[
+                        {
+                            "test":"(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
+                            "value":"black"
+                        },
+                        {
+                            "scale":"color",
+                            "field":{
+                                "signal":"metric"
+                            }
+                        }
+                    ],
+                    "tooltip":{
+                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
+                    }
+                },
+                "hover":{
+                    "strokeWidth":[
+                        {
+                            "test":"boundary == 'states' || state_state != null",
+                            "value":1
+                        }
+                    ],
+                    "stroke":[
+                        {
+                            "test":"boundary == 'states' || state_state",
+                            "value":"black"
+                        }
+                    ]
+                }
+            },
+            "transform":[
+                {
+                    "type":"geoshape",
+                    "projection":"projection"
+                }
+            ]
+        },
+        {
+            "name":"nyc_marks",
+            "type":"shape",
+            "style":[
+                "geoshape"
+            ],
+            "interactive":true,
+            "from":{
+                "data":"nyc_topojson_data"
+            },
+            "encode":{
+                "update":{
+                    "strokeWidth":{
+                        "value":0
+                    },
+                    "fill":[
+                        {
+                            "test":"(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
+                            "value":"black"
+                        },
+                        {
+                            "scale":"color",
+                            "field":{
+                                "signal":"metric"
+                            }
+                        }
+                    ],
+                    "tooltip":{
+                        "signal":"{\"county\": isValid(datum[\"county\"]) ? datum[\"county\"] : \"\",\"state\": isValid(datum[\"state\"]) ? datum[\"state\"] : \"\"+datum[\"state\"], \"cases\": format(datum[\"cases\"], \"\"), \"deaths\": format(datum[\"deaths\"], \"\")}"
+                    }
+                },
+                "hover":{
+                    "strokeWidth":[
+                        {
+                            "test":"boundary == 'states' || state_state != null",
+                            "value":1
+                        }
+                    ],
+                    "stroke":[
+                        {
+                            "test":"boundary == 'states' || state_state",
+                            "value":"black"
+                        }
+                    ]
+                }
+            },
+            "transform":[
+                {
+                    "type":"geoshape",
+                    "projection":"projection"
+                }
+            ]
+        }
+    ],
+    "scales":[
+        {
+            "name":"color",
+            "type":"quantize",
+            "domain":[
+                0,
+                {
+                    "signal":"metric_range"
+                }
+            ],
+            "range":{
+                "scheme":[
+                    "#cccd9d",
+                    "#b1b187",
+                    "#9f9f79",
+                    "#848558",
+                    "#6c8e60",
+                    "#526b49",
+                    "#3c4e35",
+                    "#705b47",
+                    "#504132",
+                    "#31271e"
+                ],
+                "count":10
+            },
+            "interpolate":"hcl",
+            "zero":true
+        }
+    ],
+    "legends":[
+        {
+            "fill":"color",
+            "symbolType":"circle",
+            "title":{
+                "signal":"metric"
+            },
+            "padding":10
+        }
+    ]
 }
