@@ -7,7 +7,7 @@
     "background":"#A67D3D",
     "padding":5,
     "width":"container",
-    "height":300,
+    "height":400,
     "title":{
         "text":"NYTIMES COVID-19 DATA",
         "frame":"group"
@@ -140,6 +140,42 @@
     ],
     "signals":[
         {
+            "name":"display_date",
+            "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+(date(day)<10?0+''+date(day):date(day))",
+            "bind":{
+                "input":"text",
+                "name":"DATE",
+                "element":"#dateControl",
+                "readonly":true,
+                "size":30
+            }
+        },
+        {
+            "name":"day",
+            "init":"1583038800000",
+            "bind":{
+                "input":"range",
+                "min":1580533200000,
+                "max":1596240000000,
+                "step":86400000,
+                "element":"#dateControl",
+                "name":"SLIDER"
+            },
+             "on": [ 
+                { 
+                    "events": [
+                        {
+                            "type":"timer", 
+                            "throttle": 500
+                        }    
+                    ], 
+                    "update":{ 
+                        "signal": "(day+86400000)<now?day+86400000:now"
+                    }
+                }              
+            ]
+        },
+        {
             "name":"boundary",
             "value":"states",
             "bind":{
@@ -157,12 +193,23 @@
             "value":"New York City"
         },
         {
-            "name":"feb1",
-            "value":"1580533200000"
+            "name":"now",
+            "update":"now()", "on": [
+                { 
+                    "events": [
+                        {
+                            "type":"mousedown"
+                        }    
+                    ], 
+                    "update":{ 
+                        "signal": "day==now?now():day"
+                    }
+                }                
+            ]
         },
         {
-            "name":"datetime",
-            "update":"datetime(day)"
+            "name":"feb1",
+            "value":"1580533200000"
         },
         {
             "name":"data_url",
@@ -208,30 +255,6 @@
                     "10,000",
                     "50,000"
                 ]
-            }
-        },
-        {
-            "name":"display_date",
-            "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+(date(day)<10?0+''+date(day):date(day))",
-            "bind":{
-                "input":"text",
-                "name":"DATE",
-                "element":"#controls",
-                "readonly":true,
-                "size":30
-            }
-        },
-        {
-            "name":"day",
-            "init":"now()",
-            "bind":{
-                "input":"range",
-                "min":1580533200000,
-                "max":1596240000000,
-                "step":86400000,
-                "element":"#controls",
-                "name":"SLIDER",
-                "debounce":100
             }
         },
         {
@@ -461,7 +484,24 @@
                     "projection":"projection"
                 }
             ]
+        },
+    {
+      "type": "text",
+      "encode": {
+        "update": {
+          "fill": {
+            "value": "#000"
+          },
+          "text": {
+            "value": "[CLICK/TAP to start/stop timer]"
+          },
+          "fontSize": {
+            "value": 12
+          }, 
+          "y": {"signal":"height+40"}
         }
+      }
+    }  
     ],
     "scales":[
         {
