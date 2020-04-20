@@ -1,6 +1,4 @@
-# coronavirus
-
-### Just Because I got nothin better to do:
+# coronavirus vega visualization
 
 
 ![coronavirus status visualization](/grldchz.png)
