@@ -1,0 +1,172 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v3.json",
+  "width": 900,
+  "height": 600,
+  "autosize": "none",
+  "signals": [
+    {"name": "tx", "update": "width / 2"},
+    {"name": "ty", "update": "height / 2"},
+    {
+      "name": "zoom_precise",
+      "value": 2,
+      "on": [
+        {
+          "events": {"type": "wheel", "consume": true},
+          "update": "clamp(zoom_precise +event.deltaY * 0.01, 2, 20)"
+        }
+      ]
+    },
+    {
+      "name": "angles",
+      "value": [0, 0],
+      "on": [{"events": "mousedown", "update": "[rotateX, centerY]"}]
+    },
+    {
+      "name": "cloned",
+      "value": null,
+      "on": [{"events": "mousedown", "update": "copy('projection')"}]
+    },
+    {
+      "name": "start",
+      "value": null,
+      "on": [{"events": "mousedown", "update": "invert(cloned, xy())"}]
+    },
+    {
+      "name": "drag",
+      "value": null,
+      "on": [
+        {
+          "events": "[mousedown, window:mouseup] > window:mousemove",
+          "update": "invert(cloned, xy())"
+        }
+      ]
+    },
+    {
+      "name": "delta",
+      "value": null,
+      "on": [
+        {
+          "events": {"signal": "drag"},
+          "update": "[drag[0] - start[0], start[1] - drag[1]]"
+        }
+      ]
+    },
+    {
+      "name": "rotateX",
+      "value": 0,
+      "on": [{"events": {"signal": "delta"}, "update": "angles[0] + delta[0]"}]
+    },
+    {
+      "name": "centerY",
+      "value": 0,
+      "on": [
+        {
+          "events": {"signal": "delta"},
+          "update": "clamp(angles[1] + delta[1], -60, 60)"
+        }
+      ]
+    },
+    {"name": "baseTileSize", "value": 256},
+    {"name": "tileUrl", "value": "https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/"},
+    {"name": "zoom", "update": "ceil(zoom_precise)"},
+    {"name": "tilesCount", "update": "pow(2,zoom)"},
+    {"name": "tileSize", "update": "baseTileSize*pow(2,zoom_precise-zoom)"},
+    {"name": "maxTiles", "update": "ceil(max(height,width)/tileSize +1)"},
+    {"name": "basePoint", "update": "invert('projection',[0,0])"},
+    {"name": "dii", "update": "((basePoint[0]+180)/360*tilesCount)"},
+    {"name": "di", "update": "floor(dii)"},
+    {"name": "dx", "update": "round((floor(dii)-dii)*tileSize)"},
+    {
+      "name": "djj",
+      "update": "((1-log(tan(basePoint[1]*PI/180) + 1/cos(basePoint[1]*PI/180))/PI)/2 *tilesCount)"
+    },
+    {"name": "dj", "update": "floor(djj)"},
+    {"name": "dy", "update": "round((floor(djj)-djj)*tileSize)"},
+    {"name": "scale", "update": "baseTileSize * pow(2,zoom_precise) / (2 * PI)"}
+  ],
+  "projections": [
+    {
+      "name": "projection",
+      "type": "mercator",
+      "scale": {"signal": "scale"},
+      "rotate": [{"signal": "rotateX"}, 0, 0],
+      "center": [0, {"signal": "centerY"}],
+      "translate": [{"signal": "tx"}, {"signal": "ty"}]
+    }
+  ],
+  "data": [
+    {
+      "name": "world",
+      "url": "https://vega.github.io/vega-datasets/data/world-110m.json",
+      "format": {"type": "topojson", "feature": "countries"}
+    },
+    {
+      "name": "tile_list",
+      "transform": [
+        {"type": "sequence", "start": 0, "stop": {"signal": "maxTiles"}},
+        {"type": "cross", "filter": "(datum.a.data>=0)&(datum.b.data>=0)"},
+        {
+          "type": "formula",
+          "as": "url",
+          "expr": "tileUrl+zoom+'/'+((datum.b.data+dj))+ '/'+(datum.a.data+di+tilesCount)%tilesCount+'.png'"
+        },
+        {"type": "formula", "as": "x", "expr": "datum.a.data*tileSize + dx"},
+        {"type": "formula", "as": "y", "expr": "datum.b.data*tileSize + dy"}
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "type": "image",
+      "from": {"data": "tile_list"},
+      "encode": {
+        "update": {
+          "url": {"field": "url"},
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "width": {"signal": "tileSize"},
+          "height": {"signal": "tileSize"},
+          "zindex": {"value": 1}
+        }
+      }
+    },
+    {
+      "type": "shape",
+      "from": {"data": "world"},
+      "encode": {
+        "enter": {
+          "strokeWidth": {"value": 0.5},
+          "stroke": {"value": "blue"},
+          "fill": {"value": "lightblue"},
+          "zindex": {"value": 3}
+        },
+        "update": {
+          "fill": {"value": "lightblue"},
+          "fillOpacity": {"value": 0.3}
+        },
+        "hover": {"fillOpacity": {"value": 0.5}}
+      },
+      "transform": [{"type": "geoshape", "projection": "projection"}]
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "fontSize": {"value": 10},
+          "baseline": {"value": "bottom"},
+          "align": {"value": "right"},
+          "dx": {"value": -5},
+          "dy": {"value": -5}
+        },
+        "update": {
+          "x": {"signal": "width"},
+          "y": {"signal": "height"},
+          "href": {"value": "http://stamen.com"},
+          "text": {
+            "value": "Map tiles by esri."
+          }
+        }
+      }
+    }
+  ]
+}
