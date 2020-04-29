@@ -1,10 +1,13 @@
 {
    "$schema":"https://vega.github.io/schema/vega/v5.json",
+   "autosize":{
+      "type":"fit-x",
+      "contains":"padding"
+   },
    "background":"#A67D3D",
    "padding":5,
-   "width":600,
+   "width":"container",
    "height":400,
-  "style": "cell",
    "title":{
       "text":"NYTIMES COVID-19 DATA",
       "frame":"group"
@@ -387,7 +390,27 @@
          "type":"albersUsa"
       }
    ],
-   "marks":[{
+   "marks":[
+    {
+      "name": "popup_marks",
+      "type": "area",
+      "style": ["area"],
+      "sort": {"field": "datum[\"utcyearmonthdate_date\"]"},
+      "from": {"data": "nytimes_data"},
+      "encode": {
+        "update": {
+          "orient": {"value": "vertical"}, "height":{ "value": 200},
+          "fill": {"value": "#4c78a8"},
+          "x": {"scale": "x", "field": "utcyearmonthdate_date"},
+          "y": {"scale": "y", "field": { "signal": "metric"}},
+          "y2": {"scale": "y", "value": 0},
+          "defined": {
+            "signal": "isValid(datum[\"utcyearmonthdate_date\"]) && isFinite(+datum[\"utcyearmonthdate_date\"]) && isValid(datum[metric]) && isFinite(+datum[metric])"
+          }
+        }
+      }
+    },
+       {
          "name":"marks",
          "type":"shape",
          "style":[
@@ -511,26 +534,7 @@
                }
             }
          }
-      },
-    {
-      "name": "popup_marks",
-      "type": "area",
-      "style": ["area"],
-      "sort": {"field": "datum[\"utcyearmonthdate_date\"]"},
-      "from": {"data": "nytimes_data"},
-      "encode": {
-        "update": {
-          "orient": {"value": "vertical"},
-          "fill": {"value": "#4c78a8"},
-          "x": {"scale": "x", "field": "utcyearmonthdate_date"},
-          "y": {"scale": "y", "field": "cases"},
-          "y2": {"scale": "y", "value": 0},
-          "defined": {
-            "signal": "isValid(datum[\"utcyearmonthdate_date\"]) && isFinite(+datum[\"utcyearmonthdate_date\"]) && isValid(datum[\"cases\"]) && isFinite(+datum[\"cases\"])"
-          }
-        }
       }
-    }
    ],
    "scales":[
     {
@@ -542,7 +546,7 @@
     {
       "name": "y",
       "type": "linear",
-      "domain": {"data": "topojson_data", "field": "cases"},
+      "domain": {"data": "nytimes_data", "field": { "signal": "metric"}},
       "range": [{"signal": "height"}, 0],
       "nice": true,
       "zero": true
@@ -638,7 +642,7 @@
       "scale": "y",
       "orient": "left",
       "grid": false,
-      "title": "cases",
+      "title": { "signal": "metric"} ,
       "labelOverlap": true,
       "tickCount": {"signal": "ceil(height/50)"},
       "zindex": 0
