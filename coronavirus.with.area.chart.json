@@ -7,7 +7,7 @@
    "background":"#A67D3D",
    "padding":5,
    "width":"container",
-   "height":400,
+   "height":200,
    "title":{
       "text":"NYTIMES COVID-19 DATA",
       "frame":"group"
@@ -390,7 +390,97 @@
          "type":"albersUsa"
       }
    ],
+  "layout": {
+    "columns": 1,
+    "padding": 20
+  },
    "marks":[
+      {
+         "name":"areaMark",
+         "type":"group",
+      "encode": {
+        "enter": {
+          "width": {"signal": "width"},
+          "height": {"signal": "height"},
+          "clip": {"value": false}
+        }
+      },
+   "scales":[
+    {
+      "name": "x",
+      "type": "utc",
+      "domain": {"data": "nytimes_data", "field": "utcyearmonthdate_date"},
+      "range": [0, {"signal": "width"}]
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": {"data": "nytimes_data", "field": { "signal": "metric"}},
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    }
+   ],
+  "axes": [
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "gridScale": "y",
+      "grid": true,
+      "tickCount": {"signal": "ceil(width/20)"},
+      "domain": false,
+      "labels": false,
+      "maxExtent": 0,
+      "minExtent": 0,
+      "ticks": false,
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "gridScale": "x",
+      "grid": true,
+      "tickCount": {"signal": "ceil(height/20)"},
+      "domain": false,
+      "labels": false,
+      "maxExtent": 0,
+      "minExtent": 0,
+      "ticks": false,
+      "zindex": 0
+    },
+    {
+      "scale": "x",
+      "orient": "bottom",
+      "grid": false,
+      "title": "date (year-month-date)",
+      "labelAngle": 15,
+      "encode": {
+        "labels": {
+          "update": {
+            "text": {
+              "signal": "utcFormat(datum.value, timeUnitSpecifier([\"year\",\"month\",\"date\"], {\"year-month\":\"%b %Y \",\"year-month-date\":\"%b %d, %Y \"}))"
+            }
+          }
+        }
+      },
+      "labelAlign": "left",
+      "labelBaseline": "top",
+      "labelFlush": true,
+      "labelOverlap": true,
+      "tickCount": {"signal": "ceil(width/20)"},
+      "zindex": 0
+    },
+    {
+      "scale": "y",
+      "orient": "left",
+      "grid": false,
+      "title": { "signal": "metric"} ,
+      "labelOverlap": true,
+      "tickCount": {"signal": "ceil(height/20)"},
+      "zindex": 0
+    }
+  ],
+      "marks":[
     {
       "name": "popup_marks",
       "type": "area",
@@ -399,7 +489,7 @@
       "from": {"data": "nytimes_data"},
       "encode": {
         "update": {
-          "orient": {"value": "vertical"}, "height":{ "value": 200},
+          "orient": {"value": "vertical"},
           "fill": {"value": "#4c78a8"},
           "x": {"scale": "x", "field": "utcyearmonthdate_date"},
           "y": {"scale": "y", "field": { "signal": "metric"}},
@@ -409,7 +499,48 @@
           }
         }
       }
-    },
+    }]},
+    { "name": "mapMarks",
+    "type":"group",
+   "legends":[
+      {
+         "fill":"color",
+         "symbolType":"circle",
+         "title":{
+            "signal":"metric"
+         },
+         "padding":10
+      }
+   ],
+   "scales":[
+      {
+         "name":"color",
+         "type":"quantize",
+         "domain":[
+            0,
+            {
+               "signal":"metric_range"
+            }
+         ],
+         "range":{
+            "scheme":[
+               "#cccd9d",
+               "#b1b187",
+               "#9f9f79",
+               "#848558",
+               "#6c8e60",
+               "#526b49",
+               "#3c4e35",
+               "#705b47",
+               "#504132",
+               "#31271e"
+            ],
+            "count":10
+         },
+         "interpolate":"hcl",
+         "zero":true
+      }],
+      "marks":[
        {
          "name":"marks",
          "type":"shape",
@@ -535,117 +666,5 @@
             }
          }
       }
-   ],
-   "scales":[
-    {
-      "name": "x",
-      "type": "utc",
-      "domain": {"data": "nytimes_data", "field": "utcyearmonthdate_date"},
-      "range": [0, {"signal": "width"}]
-    },
-    {
-      "name": "y",
-      "type": "linear",
-      "domain": {"data": "nytimes_data", "field": { "signal": "metric"}},
-      "range": [{"signal": "height"}, 0],
-      "nice": true,
-      "zero": true
-    },
-      {
-         "name":"color",
-         "type":"quantize",
-         "domain":[
-            0,
-            {
-               "signal":"metric_range"
-            }
-         ],
-         "range":{
-            "scheme":[
-               "#cccd9d",
-               "#b1b187",
-               "#9f9f79",
-               "#848558",
-               "#6c8e60",
-               "#526b49",
-               "#3c4e35",
-               "#705b47",
-               "#504132",
-               "#31271e"
-            ],
-            "count":10
-         },
-         "interpolate":"hcl",
-         "zero":true
-      }
-   ],
-   "legends":[
-      {
-         "fill":"color",
-         "symbolType":"circle",
-         "title":{
-            "signal":"metric"
-         },
-         "padding":10
-      }
-   ],
-  "axes": [
-    {
-      "scale": "x",
-      "orient": "bottom",
-      "gridScale": "y",
-      "grid": true,
-      "tickCount": {"signal": "ceil(width/50)"},
-      "domain": false,
-      "labels": false,
-      "maxExtent": 0,
-      "minExtent": 0,
-      "ticks": false,
-      "zindex": 0
-    },
-    {
-      "scale": "y",
-      "orient": "left",
-      "gridScale": "x",
-      "grid": true,
-      "tickCount": {"signal": "ceil(height/50)"},
-      "domain": false,
-      "labels": false,
-      "maxExtent": 0,
-      "minExtent": 0,
-      "ticks": false,
-      "zindex": 0
-    },
-    {
-      "scale": "x",
-      "orient": "bottom",
-      "grid": false,
-      "title": "date (year-month-date)",
-      "labelAngle": 15,
-      "encode": {
-        "labels": {
-          "update": {
-            "text": {
-              "signal": "utcFormat(datum.value, timeUnitSpecifier([\"year\",\"month\",\"date\"], {\"year-month\":\"%b %Y \",\"year-month-date\":\"%b %d, %Y \"}))"
-            }
-          }
-        }
-      },
-      "labelAlign": "left",
-      "labelBaseline": "top",
-      "labelFlush": true,
-      "labelOverlap": true,
-      "tickCount": {"signal": "ceil(width/50)"},
-      "zindex": 0
-    },
-    {
-      "scale": "y",
-      "orient": "left",
-      "grid": false,
-      "title": { "signal": "metric"} ,
-      "labelOverlap": true,
-      "tickCount": {"signal": "ceil(height/50)"},
-      "zindex": 0
-    }
-  ]
+   ]}]
 }
