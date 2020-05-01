@@ -2,10 +2,10 @@
    "$schema":"https://vega.github.io/schema/vega/v5.json",
    "autosize":{
       "type":"fit-x",
-      "contains":"padding"
+      "contains": "padding"
    },
    "background":"#A67D3D",
-   "padding":5,
+   "padding":50,
    "width":"container",
    "height":200,
    "title":{
@@ -31,7 +31,7 @@
          "transform":[
             {
                "type":"filter",
-               "expr":"inrange(datum[\"date\"], [apr01, day])"
+               "expr":"inrange(datum[\"date\"], [startDay, day])"
             },
         {
           "field": "date",
@@ -43,6 +43,46 @@
             {
                "type":"filter",
                "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+            }
+         ]
+      },
+      {
+         "name":"nytimes_agg_data",
+         "url":{
+            "signal":"data_url"
+         },
+         "format":{
+            "type":"csv",
+            "delimiter":",",
+            "parse":{
+               "date":"utc:'%Y-%m-%d'"
+            }
+         },
+         "transform":[
+            {
+               "type":"filter",
+               "expr":"inrange(datum[\"date\"], [startDay, day])"
+            },
+            {
+               "type":"filter",
+               "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+            },
+            {
+              "type":"aggregate",
+              "groupby":["date"], 
+              "fields":[{"signal":"metric"}], 
+              "ops":["sum"], 
+              "as":[{"signal":"metric"}]
+            },
+            {
+               "field": "date",
+               "type": "timeunit",
+               "units": ["year", "month", "date"],
+               "timezone": "utc",
+               "as": [
+                  "utcyearmonthdate_date",
+                  "utcyearmonthdate_date_end"
+               ]
             }
          ]
       },
@@ -103,7 +143,7 @@
          "transform":[
             {
                "type":"filter",
-               "expr":"inrange(datum[\"date\"], [apr01, day]) && datum[\"county\"] == 'New York City'"
+               "expr":"inrange(datum[\"date\"], [startDay, day]) && datum[\"county\"] == 'New York City'"
             }
          ]
       },
@@ -163,7 +203,7 @@
       },
       {
          "name":"day",
-         "init":"1585717200000",
+         "init":"1583038800000",
          "bind":{
             "input":"range",
             "min":1580533200000,
@@ -220,8 +260,8 @@
          ]
       },
       {
-         "name":"apr01",
-         "value":"1585717200000"
+         "name":"startDay",
+         "value":"1583038800000"
       },
       {
          "name":"data_url",
@@ -575,13 +615,13 @@
     {
       "name": "x",
       "type": "utc",
-      "domain": {"data": "nytimes_data", "field": "utcyearmonthdate_date"},
+      "domain": {"data": "nytimes_agg_data", "field": "utcyearmonthdate_date"},
       "range": [0, {"signal": "width"}]
     },
     {
       "name": "y",
       "type": "linear",
-      "domain": {"data": "nytimes_data", "field": { "signal": "metric"}},
+      "domain": {"data": "nytimes_agg_data", "field": { "signal": "metric"}},
       "range": [{"signal": "height"}, 0],
       "nice": true,
       "zero": true
@@ -593,7 +633,7 @@
       "orient": "bottom",
       "gridScale": "y",
       "grid": true,
-      "tickCount": {"signal": "ceil(width/20)"},
+      "tickCount": {"signal": "ceil(height/50)"},
       "domain": false,
       "labels": false,
       "maxExtent": 0,
@@ -606,7 +646,7 @@
       "orient": "left",
       "gridScale": "x",
       "grid": true,
-      "tickCount": {"signal": "ceil(height/20)"},
+      "tickCount": 10,
       "domain": false,
       "labels": false,
       "maxExtent": 0,
@@ -633,8 +673,8 @@
       "labelBaseline": "top",
       "labelFlush": true,
       "labelOverlap": true,
-      "tickCount": {"signal": "ceil(width/20)"},
-      "zindex": 0
+      "tickCount": {"signal": "ceil(width/50)"},
+      "zindex":0
     },
     {
       "scale": "y",
@@ -642,7 +682,7 @@
       "grid": false,
       "title": { "signal": "metric"} ,
       "labelOverlap": true,
-      "tickCount": {"signal": "ceil(height/20)"},
+      "tickCount": 10,
       "zindex": 0
     }
   ],
@@ -652,7 +692,7 @@
       "type": "area",
       "style": ["area"],
       "sort": {"field": "datum[\"utcyearmonthdate_date\"]"},
-      "from": {"data": "nytimes_data"},
+      "from": {"data": "nytimes_agg_data"},
       "encode": {
         "update": {
           "orient": {"value": "vertical"}, 
@@ -665,5 +705,8 @@
           }
         }
       }
-    }]}]
+    }
+    ]
+    }
+    ]
 }
