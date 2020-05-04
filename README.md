@@ -1,4 +1,4 @@
 # coronavirus vega visualization
 
 
-![coronavirus status visualization](/grldchz.png)
+![coronavirus status visualization](/grldchz1.png)
