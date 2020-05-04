@@ -4,7 +4,7 @@
       "type":"fit-x",
       "contains": "padding"
    },
-   "background":"#A67D3D",
+   "background":"#ffffff",
    "padding":50,
    "width":"container",
    "height":200,
@@ -255,6 +255,22 @@
                ],
                "update":{
                   "signal":"day==now?now():day"
+               }
+            }
+         ]
+      },
+      {
+         "name":"stateClicked",
+         "update":"state_state",
+         "on":[
+            {
+               "events":[
+                  {
+                     "marktype": "shape", "type":"mousedown"
+                  }
+               ],
+               "update":{
+                  "signal":"data('nytimes_data')['state']"
                }
             }
          ]
@@ -633,7 +649,7 @@
       "orient": "bottom",
       "gridScale": "y",
       "grid": true,
-      "tickCount": {"signal": "ceil(height/50)"},
+      "tickCount": 10,
       "domain": false,
       "labels": false,
       "maxExtent": 0,
@@ -659,7 +675,7 @@
       "orient": "bottom",
       "grid": false,
       "title": "date (year-month-date)",
-      "labelAngle": 15,
+      "labelAngle": 45,
       "encode": {
         "labels": {
           "update": {
@@ -671,9 +687,8 @@
       },
       "labelAlign": "left",
       "labelBaseline": "top",
-      "labelFlush": true,
-      "labelOverlap": true,
-      "tickCount": {"signal": "ceil(width/50)"},
+      "labelOverlap": false,
+      "tickCount": 10,
       "zindex":0
     },
     {
