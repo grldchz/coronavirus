@@ -260,22 +260,6 @@
          ]
       },
       {
-         "name":"stateClicked",
-         "update":"state_state",
-         "on":[
-            {
-               "events":[
-                  {
-                     "marktype": "shape", "type":"mousedown"
-                  }
-               ],
-               "update":{
-                  "signal":"data('nytimes_data')['state']"
-               }
-            }
-         ]
-      },
-      {
          "name":"startDay",
          "value":"1583038800000"
       },
@@ -711,7 +695,12 @@
       "encode": {
         "update": {
           "orient": {"value": "vertical"}, 
-          "fill": {"value": "#4c78a8"},
+          "fill": {"value": {
+              "gradient": "linear",
+              "stops": [
+                {"offset": 0, "color": "#cccd9d"},
+                {"offset": 1, "color": "#31271e"}
+              ]}},
           "x": {"scale": "x", "field": "utcyearmonthdate_date"},
           "y": {"scale": "y", "field": { "signal": "metric"}},
           "y2": {"scale": "y", "value": 0},
