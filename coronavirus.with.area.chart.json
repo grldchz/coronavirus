@@ -14,9 +14,6 @@
    },
    "data":[
       {
-         "name":"state_store"
-      },
-      {
          "name":"nytimes_data",
          "url":{
             "signal":"data_url"
@@ -33,16 +30,9 @@
                "type":"filter",
                "expr":"inrange(datum[\"date\"], [startDay, day])"
             },
-        {
-          "field": "date",
-          "type": "timeunit",
-          "units": ["year", "month", "date"],
-          "timezone": "utc",
-          "as": ["utcyearmonthdate_date", "utcyearmonthdate_date_end"]
-        },
             {
                "type":"filter",
-               "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
             }
          ]
       },
@@ -65,7 +55,7 @@
             },
             {
                "type":"filter",
-               "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
             },
             {
               "type":"aggregate",
@@ -124,7 +114,7 @@
             },
             {
                "type":"filter",
-               "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
             }
          ]
       },
@@ -184,7 +174,7 @@
             },
             {
                "type":"filter",
-               "expr":"!(length(data(\"state_store\"))) || (vlSelectionTest(\"state_store\", datum))"
+               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
             }
          ]
       }
@@ -332,109 +322,11 @@
          ]
       },
       {
-         "name":"state_state",
-         "value":null,
-         "bind":{
-            "input":"select",
-            "name":"STATE",
-            "element":"#controls",
-            "options":[
-               null,
-               "Alabama",
-               "Alaska",
-               "Arizona",
-               "Arkansas",
-               "California",
-               "Colorado",
-               "Connecticut",
-               "Delaware",
-               "Florida",
-               "Georgia",
-               "Hawaii",
-               "Idaho",
-               "Illinois",
-               "Indiana",
-               "Iowa",
-               "Kansas",
-               "Kentucky",
-               "Louisiana",
-               "Maine",
-               "Maryland",
-               "Massachusetts",
-               "Michigan",
-               "Minnesota",
-               "Mississippi",
-               "Missouri",
-               "Montana",
-               "Nebraska",
-               "Nevada",
-               "New Hampshire",
-               "New Jersey",
-               "New Mexico",
-               "New York",
-               "North Carolina",
-               "North Dakota",
-               "Ohio",
-               "Oklahoma",
-               "Oregon",
-               "Pennsylvania",
-               "Rhode Island",
-               "South Carolina",
-               "South Dakota",
-               "Tennessee",
-               "Texas",
-               "Utah",
-               "Vermont",
-               "Virginia",
-               "Washington",
-               "West Virginia",
-               "Wisconsin",
-               "Wyoming"
-            ]
-         },
-  "on": [
-   {
-     "events": "mousedown", 
-      "update": "datum!=null?datum.state:'null'"
-  }    
-  ]
-      },
-      {
-         "name":"state_tuple",
-         "update":"state_state !== null ? {fields: state_tuple_fields, values: [state_state]} : null",
-  "on": [
-    {
-      "events": "mousedown", 
-      "update": "datum!=null?{fields: state_tuple_fields, values: [datum.state]}:null"
-    }
-  ]      
-      },
-      {
-         "name":"state_tuple_fields",
-         "value":[
-            {
-               "type":"E",
-               "field":"state"
-            }
-         ]
-      },
-      {
-         "name":"state_modify",
-         "on":[
-            {
-               "events":{
-                  "signal":"state_tuple"
-               },
-               "update":"modify(\"state_store\", state_tuple, true)"
-            }
-        ]
-      },
-{
-  "name": "onStateClick",
-  "value": "null",
-  "on": [
-    {"events": "mousedown", "update": "datum!=null?datum.state:null"}]      
-}
+      "name": "onStateClick",
+      "value": null,
+      "on": [
+         {"events": "mousedown", "update": "datum!=null?datum.state:null"}]      
+      }
    ],
    "projections":[
       {
@@ -527,13 +419,13 @@
             "hover":{
                "strokeWidth":[
                   {
-                     "test":"boundary == 'states' || state_state != null",
+                     "test":"boundary == 'states' || onStateClick != null",
                      "value":1
                   }
                ],
                "stroke":[
                   {
-                     "test":"boundary == 'states' || state_state",
+                     "test":"boundary == 'states' || onStateClick",
                      "value":"black"
                   }
                ]
@@ -580,13 +472,13 @@
             "hover":{
                "strokeWidth":[
                   {
-                     "test":"boundary == 'states' || state_state != null",
+                     "test":"boundary == 'states' || onStateClick != null",
                      "value":1
                   }
                ],
                "stroke":[
                   {
-                     "test":"boundary == 'states' || state_state",
+                     "test":"boundary == 'states' || onStateClick",
                      "value":"black"
                   }
                ]
