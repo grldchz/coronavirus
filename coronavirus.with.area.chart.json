@@ -391,11 +391,23 @@
                "Wisconsin",
                "Wyoming"
             ]
-         }
+         },
+  "on": [
+   {
+     "events": "mousedown", 
+      "update": "datum!=null?datum.state:'null'"
+  }    
+  ]
       },
       {
          "name":"state_tuple",
-         "update":"state_state !== null ? {fields: state_tuple_fields, values: [state_state]} : null"
+         "update":"state_state !== null ? {fields: state_tuple_fields, values: [state_state]} : null",
+  "on": [
+    {
+      "events": "mousedown", 
+      "update": "datum!=null?{fields: state_tuple_fields, values: [datum.state]}:null"
+    }
+  ]      
       },
       {
          "name":"state_tuple_fields",
@@ -415,8 +427,14 @@
                },
                "update":"modify(\"state_store\", state_tuple, true)"
             }
-         ]
-      }
+        ]
+      },
+{
+  "name": "onStateClick",
+  "value": "null",
+  "on": [
+    {"events": "mousedown", "update": "datum!=null?datum.state:null"}]      
+}
    ],
    "projections":[
       {
@@ -711,7 +729,8 @@
                {"offset": 0.6, "color": "#3c4e35"},
                {"offset": 0.7, "color": "#705b47"},
                {"offset": 0.8, "color": "#504132"},
-               {"offset": 0.9, "color": "#31271e"}
+               {"offset": 0.9, "color": "#31271e"},
+               {"offset": 1.0, "color": "#000000"}
               ]}},
           "x": {"scale": "x", "field": "utcyearmonthdate_date"},
           "y": {"scale": "y", "field": { "signal": "metric"}},
