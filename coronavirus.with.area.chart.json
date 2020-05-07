@@ -171,10 +171,6 @@
                   "cases",
                   "deaths"
                ]
-            },
-            {
-               "type":"filter",
-               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
             }
          ]
       }
@@ -240,7 +236,8 @@
             {
                "events":[
                   {
-                     "type":"mousedown"
+                       "markname":"stopTimer", 
+                       "type":"mousedown"
                   }
                ],
                "update":{
@@ -400,6 +397,7 @@
                "strokeWidth":{
                   "value":0
                },
+               "cursor":{"value":"pointer"},
                "fill":[
                   {
                      "test":"(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
@@ -453,6 +451,7 @@
                "strokeWidth":{
                   "value":0
                },
+               "cursor":{"value":"pointer"},
                "fill":[
                   {
                      "test":"(boundary == 'states'&&datum.cases > 100000) || (boundary == 'counties'&&datum.deaths > 5000)",
@@ -493,11 +492,13 @@
       },
       {
          "type":"text",
+         "name": "stopTimer",
          "encode":{
             "update":{
                "fill":{
                   "value":"#000"
                },
+               "cursor":{"value":"pointer"},
                "text":{
                   "value":"[CLICK/TAP to start/stop timer]"
                },
@@ -506,6 +507,10 @@
                },
                "y":{
                   "signal":"height+40"
+               }
+            }, "hover":{
+               "fill":{
+                  "value":"blue"
                }
             }
          }
