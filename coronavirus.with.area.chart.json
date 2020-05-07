@@ -171,7 +171,11 @@
                   "cases",
                   "deaths"
                ]
-            }
+            },
+            {
+               "type":"filter",
+               "expr":"!onStateClick||(onStateClick&&onStateClick==datum.state)"
+			}
          ]
       }
    ],
