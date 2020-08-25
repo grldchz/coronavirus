@@ -378,6 +378,10 @@
                },
                "cursor":{"value":"pointer"},
                "fill":[
+                  {	
+                     "test":"metric=='deaths'&&((boundary=='states'&&datum.deaths>20000)||(boundary=='counties'&&datum.deaths>10000))",	
+                     "value":"black"	
+                  },	
                   {
                      "scale":"color",
                      "field":{
@@ -428,6 +432,10 @@
                },
                "cursor":{"value":"pointer"},
                "fill":[
+                  {	
+                     "test":"metric=='deaths'&&((boundary=='states'&&datum.deaths>20000)||(boundary=='counties'&&datum.deaths>10000))",	
+                     "value":"black"	
+                  },	
                   {
                      "scale":"color",
                      "field":{
