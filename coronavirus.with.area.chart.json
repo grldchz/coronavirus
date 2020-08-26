@@ -1,13 +1,11 @@
 {
    "$schema":"https://vega.github.io/schema/vega/v5.json",
    "autosize":{
-      "type":"fit-x",
-      "contains": "padding"
+      "type":"fit-x"
    },
    "background":"#ffffff",
-   "padding":50,
    "width":"container",
-   "height":1000,
+   "height":300,
    "title":{
       "text":"NYTIMES COVID-19 DATA",
       "frame":"group"
@@ -182,14 +180,7 @@
    "signals":[
       {
          "name":"display_date",
-         "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+(date(day)<10?0+''+date(day):date(day))", 
-         "description": "Comment: element #dateControl removed from bind",
-         "bind":{
-            "input":"text",
-            "name":"DATE",
-            "readonly":true,
-            "size":30
-         }
+         "update":"year(day)+'-'+((month(day)+1)<10?0+''+(month(day)+1):(month(day)+1))+'-'+(date(day)<10?0+''+date(day):date(day))"
       },
       {
          "name":"day",
@@ -317,12 +308,8 @@
       }
    ],
   "layout": {
-    "columns": 1,
-    "padding": 20
+    "columns": 1
   },
-   "marks":[
-    { "name": "mapMarks",
-    "type":"group",
    "scales":[
       {
          "name":"color",
@@ -351,15 +338,9 @@
          "interpolate":"hcl",
          "zero":true
       }],
-   "legends":[
-      {
-         "fill":"color", "orient": "top-right",
-         "title":{
-            "signal":"metric"
-         },
-         "padding":10
-      }
-   ],
+   "marks":[
+    { "name": "mapMarks",
+    "type":"group",
       "marks":[
        {
          "name":"marks",
@@ -403,7 +384,7 @@
                "stroke":[
                   {
                      "test":"boundary == 'states' || onStateClick",
-                     "value":"black"
+                     "value":"white"
                   }
                ]
             }
@@ -457,7 +438,7 @@
                "stroke":[
                   {
                      "test":"boundary == 'states' || onStateClick",
-                     "value":"black"
+                     "value":"white"
                   }
                ]
             }
@@ -485,13 +466,48 @@
                   "value":12
                },
                "y":{
-                  "signal":"height+40"
+                  "signal":"height+20"
+               },
+               "x":{
+                  "value":0
                }
             }, "hover":{
                "fill":{
                   "value":"blue"
                }
             }
+         }
+      },
+      {
+         "type":"text",
+         "name": "dateText",
+         "encode":{
+            "update":{
+               "fill":{
+                  "value":"#000"
+               },
+               "text":{
+                  "signal":"display_date"
+               },
+               "fontSize":{
+                  "value":12
+               },
+               "y":{
+                  "signal":"height+40"
+               },
+               "x":{
+                  "value":0
+               }
+            }
+         }
+      }
+   ],
+   "legends":[
+      {
+         "fill":"color", "orient": "top",
+         "direction": "horizontal", "gradientLength":280,
+         "title":{
+            "signal":"metric"
          }
       }
    ]},
@@ -581,7 +597,7 @@
   ],
       "marks":[
     {
-      "name": "popup_marks",
+      "name": "area_chart",
       "type": "area",
       "style": ["area"],
       "sort": {"field": "datum[\"utcyearmonthdate_date\"]"},
